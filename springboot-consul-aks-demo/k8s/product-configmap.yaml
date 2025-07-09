@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: product-consul-cm
+  namespace: consul-demo
+data:
+  service.hcl: |
+    service {
+      name = "product-service"
+      port = 8080
+      check {
+        http     = "http://localhost:8080/actuator/health"
+        interval = "10s"
+      }
+    }

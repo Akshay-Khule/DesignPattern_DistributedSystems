@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product-deployment
+  namespace: consul-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      containers:
+        - name: product
+          image: your-dockerhub/product-service
+          ports:
+            - containerPort: 8080
+        - name: product-consul
+          image: consul:1.15
+          command: ["agent", "-retry-join=consul", "-client=0.0.0.0", "-config-dir=/consul/config"]
+          volumeMounts:
+            - name: product-config
+              mountPath: /consul/config
+      volumes:
+        - name: product-config
+          configMap:
+            name: product-consul-cm

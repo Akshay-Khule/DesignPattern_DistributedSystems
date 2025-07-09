@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-deployment
+  namespace: consul-demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory
+  template:
+    metadata:
+      labels:
+        app: inventory
+    spec:
+      containers:
+        - name: inventory
+          image: your-dockerhub/inventory-service
+          ports:
+            - containerPort: 8080
+        - name: inventory-consul
+          image: consul:1.15
+          command: ["agent", "-retry-join=consul", "-client=0.0.0.0", "-config-dir=/consul/config"]
+          volumeMounts:
+            - name: inventory-config
+              mountPath: /consul/config
+      volumes:
+        - name: inventory-config
+          configMap:
+            name: inventory-consul-cm
